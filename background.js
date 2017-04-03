@@ -11,7 +11,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse){
 
 function onInitFs(fs) {
   var url = '';
-  fs.root.getFile('top500-logfile-3.txt', {create: true}, function(fileEntry) {
+  fs.root.getFile('top80k-log.txt', {create: true}, function(fileEntry) {
     // Create a FileWriter object for our FileEntry (log.txt).
     fileEntry.createWriter(function(fileWriter) {
       fileWriter.onwriteend = function(e) {
