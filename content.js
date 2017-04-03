@@ -4,24 +4,9 @@
 var candidates = [];
 
 window.onload = function(){
-  searchForSSOButton(document.body);
-  filterCandidates(candidates, function(filtered){
-    candidates = [];
-    candidates = filtered;
-  });
-  checkLegitimacy(candidates);
-  var newcandidates = [];
-  if(candidates.length > 0){
-    for(var each of candidates){
-      var temp = each.nodeName;
-      var attribs = each.attributes;
-      for(var i = 0; i < attribs.length;i++){
-        temp += "**" + attribs[i].name + "=" + attribs[i].value + ";****";
-      }
-      newcandidates.push(temp)
-    }
-  }
-  chrome.runtime.sendMessage(newcandidates);
+  console.log("heyyy")
+  candidates = searchForSSOButton(document.body);
+  chrome.runtime.sendMessage(candidates);
 }
 
 function searchForSSOButton(rootNode){
@@ -41,11 +26,12 @@ function searchForSSOButton(rootNode){
       current.nodeName == "EMBED" )){
         var yno = processSingleNode(current);
         if(yno){
-            if(candidates.indexOf(result) == -1) candidates.push(result);
+            if(candidates.indexOf(yno) == -1) candidates.push(yno);
         }
       }
     }
   }
+  return candidates;
 }
 
 function filterNode(current) {
@@ -119,6 +105,7 @@ function checkForKeywords(inputstr){
     {"site" : "evernote", "regex" : /evernote/gi, "url" : ["https://sandbox.evernote.com/OAuth.action"]},  
     {"site" : "yelp", "regex" : /yelp/gi, "url" : ["https://api.yelp.com/oauth2"]},  
     {"site" : "facebook", "regex" : /facebook/gi, "url" : ["fb-login-button", "https://www.facebook.com/v2.0/dialog/oauth",  "https://www.facebook.com/v2.3/dialog/oauth"]},
+    {"site" : "fb", "regex" : /fb/gi, "url" : ["fb-login-button", "https://www.facebook.com/v2.0/dialog/oauth",  "https://www.facebook.com/v2.3/dialog/oauth"]},
     {"site" : "dropbox", "regex" : /dropbox/gi, "url" : ["https://www.dropbox.com/1/oauth2/authorize", "https://www.dropbox.com/1/oauth/authorize"]}, 
     {"site" : "twitch", "regex" : /twitch/gi, "url" : ["https://api.twitch.tv/kraken/oauth2/authorize"]},
     {"site" : "stripe", "regex" : /stripe/gi, "url" : ["https://connect.stripe.com/oauth/authorize"]},
@@ -141,6 +128,7 @@ function checkForKeywords(inputstr){
     var k4 = /sign[\-\s]*[up]+[\-\s]*[with]+[using]+/gi;
     var k5 = /register[\-\s]*[up]+[\-\s]*[with]+[using]+/gi;
     var k6 = /create[\-\s]*[up]+[\-\s]*[with]+[using]+/gi;
+    var k7 = /join/gi;
     var e0 = /social/gi;
     var e1 = /subscribe/gi;
     var e2 = /connect/gi;
@@ -166,10 +154,12 @@ function checkForKeywords(inputstr){
             }else if(openMatch != null){
                 return each.site;
             }else{
-                if(inputstr.match(k2) != null || inputstr.match(k3) != null  || inputstr.match(k4) != null || 
-                    inputstr.match(k5) != null || inputstr.match(k6) != null){
-                    return each.site;
-                }
+                if(each.site != 'box'){
+                  if(inputstr.match(k2) != null || inputstr.match(k3) != null  || inputstr.match(k4) != null || 
+                      inputstr.match(k5) != null || inputstr.match(k6) != null || inputstr.match(k7) != null){
+                      return each.site;
+                  }
+                } 
             }
         }
     }

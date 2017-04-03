@@ -1,17 +1,16 @@
 //Background script for the extension
-var candidateValues = [];
-var senderUrl = '';
+var sso = [];
+var page = '';
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse){
-  console.log(request)
-  candidateValues = request;
-  senderUrl = sender.url;
+  sso = request;
+  page = sender.url;
   window.requestFileSystem  = window.requestFileSystem || window.webkitRequestFileSystem;
   window.requestFileSystem(window.PERSISTENT, 5*1024*1024, onInitFs);
 });
 
 function onInitFs(fs) {
   var url = '';
-  fs.root.getFile('top80k-log.txt', {create: true}, function(fileEntry) {
+  fs.root.getFile('top-80k.txt', {create: true}, function(fileEntry) {
     // Create a FileWriter object for our FileEntry (log.txt).
     fileEntry.createWriter(function(fileWriter) {
       fileWriter.onwriteend = function(e) {
@@ -22,8 +21,8 @@ function onInitFs(fs) {
         console.log('Write failed: ' + e.toString());
       };
       fileWriter.seek(fileWriter.length);
-      if(candidateValues.length > 0){
-        var blob = new Blob([JSON.stringify({senderUrl, candidateValues})], {type: 'text/plain'});
+      if(sso.length > 0){
+        var blob = new Blob([JSON.stringify({page, sso})], {type: 'text/plain'});
         fileWriter.write(blob);
       }
     });
